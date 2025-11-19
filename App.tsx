@@ -8,7 +8,12 @@ import { Footer } from './components/Footer';
 
 function App() {
   return (
-    <div className="min-h-screen bg-zinc-950 text-white selection:bg-primary/30">
+    <div className="min-h-screen bg-[#050505] text-white selection:bg-primary/30 overflow-x-hidden">
+      {/* Global Noise Overlay */}
+      <div className="fixed inset-0 z-50 pointer-events-none opacity-[0.03] mix-blend-overlay"
+           style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}>
+      </div>
+      
       <Header />
       <main>
         <Hero />

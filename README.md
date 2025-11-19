@@ -28,7 +28,7 @@ This project is built with React, TypeScript, and Vite. Tailwind CSS is currentl
     git add .
     git commit -m "Initial commit"
     # Create repo on GitHub, then:
-    git remote add origin khogpt-landging-page
+    git remote add origin <your-repo-url>
     git push -u origin main
     ```
 
