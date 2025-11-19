@@ -4,9 +4,13 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { VoiceSimulation } from './VoiceSimulation';
 import { ParticleBackground } from './ParticleBackground';
 
+// REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxv7M2m4knBwmuLtrn33y_EL7-Ccl6aN3XD0Ti90XSxDJlznQEZVc_KbFNGnCLZifVM/exec";
+
 export const Hero: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { scrollY } = useScroll();
 
   // Parallax effects
@@ -14,14 +18,32 @@ export const Hero: React.FC = () => {
   const opacityText = useTransform(scrollY, [0, 400], [1, 0]);
   const yVisual = useTransform(scrollY, [0, 500], [0, -50]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    setError(null);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      // We use 'no-cors' mode because Google Apps Script doesn't support CORS headers perfectly for simple POSTs.
+      // This means we won't get a readable JSON response, but the data WILL be sent to the sheet.
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: formData,
+        mode: 'no-cors' 
+      });
+
+      // Since we can't read the response in no-cors, we assume success if no network error occurred.
       setIsSubmitted(true);
-    }, 1500);
+      form.reset();
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      setError("Có lỗi xảy ra. Vui lòng thử lại sau.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -110,6 +132,7 @@ export const Hero: React.FC = () => {
                               <div className="relative group/input">
                                   <input 
                                       required
+                                      name="name"
                                       type="text" 
                                       placeholder="Họ và tên" 
                                       className="w-full bg-zinc-900/40 border border-zinc-800 focus:border-primary/50 focus:bg-zinc-900/60 text-white text-sm rounded-xl block p-3.5 outline-none transition-all placeholder:text-zinc-600"
@@ -118,6 +141,7 @@ export const Hero: React.FC = () => {
                               <div className="relative group/input">
                                   <input 
                                       required
+                                      name="email"
                                       type="email" 
                                       placeholder="Email công việc" 
                                       className="w-full bg-zinc-900/40 border border-zinc-800 focus:border-primary/50 focus:bg-zinc-900/60 text-white text-sm rounded-xl block p-3.5 outline-none transition-all placeholder:text-zinc-600"
@@ -135,6 +159,7 @@ export const Hero: React.FC = () => {
                                     {!isLoading && <ArrowRight className="w-4 h-4" />}
                                   </span>
                               </button>
+                              {error && <p className="text-red-500 text-xs text-center mt-2">{error}</p>}
                           </div>
                       </form>
                   ) : (
